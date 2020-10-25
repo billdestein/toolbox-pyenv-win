@@ -28,7 +28,7 @@ type Builder struct {
 
 func (this Builder) build() {
   repoDir, _ :=  _filepath.Abs(_filepath.Dir(os.Args[0]))
-  pyenvWinDir := _filepath.Join(repoDir, "pyenv-win")
+  pyenvWinDir := _filepath.Join(repoDir, "toolbox-pyenv-win")
   currentUser, _ := user.Current();
   homeDir := currentUser.HomeDir    
   tarballDir := _filepath.Join(homeDir, "toolbox-tarballs")
@@ -48,9 +48,10 @@ func (this Builder) build() {
     os.Exit(1)
   }
 
-  // Delete the pyenv-win directory if it exists
+  // Delete the pyenvWinDir directory if it exists
   _, err = os.Stat(pyenvWinDir)
   if !os.IsNotExist(err) {
+    fmt.Printf("deleting directory %s\n", pyenvWinDir)
     err = os.RemoveAll(pyenvWinDir)
     if err != nil {
       fmt.Printf("error deleting pyenv-win directory")
@@ -59,7 +60,7 @@ func (this Builder) build() {
   }
 
   // git clone
-  command := exec.Command(gitExecutable, "clone", "https://github.com/pyenv-win/pyenv-win.git")
+  command := exec.Command(gitExecutable, "clone", "https://github.com/pyenv-win/pyenv-win.git", pyenvWinDir)
   fmt.Printf("--- %s\n", command.String());
   output, err := command.CombinedOutput();
   if err != nil {
@@ -74,7 +75,7 @@ func (this Builder) build() {
   }
 
   // tar the pyenv-win directory
-  command = exec.Command(tarExecutable, "-czf", tarballFilepath, "pyenv-win")
+  command = exec.Command(tarExecutable, "-C", repoDir, "-czf", tarballFilepath, "toolbox-pyenv-win")
   fmt.Printf("--- %s\n", command.String());
   output, err = command.CombinedOutput();
   if err != nil {
